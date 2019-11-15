@@ -8,153 +8,165 @@ class HttpPage extends StatefulWidget{
   State<StatefulWidget> createState() {
     return HttpPageState();
   }
-  
 }
 
 class HttpPageState extends State<HttpPage> with SingleTickerProviderStateMixin{
-  List _listAll = [];
-  List _listGood = [];
-  List _listShare = [];
-  List _listJob = [];
-  String _tab = 'all';
+  bool _isLoading = false;
+  String _currTab = '';
+  List<Tab> _tabs;
   TabController _tabController; //需要定义一个Controller
-  final List tabs = [{
-    'title':'全部',
-    'id':'all',
-  },{
-    'title':'精华',
-    'id':'good',
-  },{
-    'title':'分享',
-    'id':'share',
-  },{
-    'title':'招聘',
-    'id':'job',
-  }];
-  Map<String,List<ListTile>> listData = {
-    "all":[],
-    "good":[],
-    "share":[],
-    "job":[],
+  ScrollController _scrollController; 
+  Map<String,dynamic> _topicsOfCategory = {
+      "": {
+        "isFetched": false,
+        "label": "全部",
+        "currentPage": 1,
+        "list": []
+      },
+      "good": {
+        "isFetched": false,
+        "label": "精华",
+        "currentPage": 1,
+        "list": []
+      },
+      "share": {
+        "isFetched": false,
+        "label": "分享",
+        "currentPage": 1,
+        "list": []
+      },
+      "job": {
+        "isFetched": false,
+        "label": "招聘",
+        "currentPage": 1,
+        "list": []
+      }
   };
   initState(){
     super.initState();
     _getData();
-    _tabController = TabController(length: tabs.length,vsync:this);
+    _tabController = TabController(length: _topicsOfCategory.length,vsync:this);
     _tabController.addListener((){  
-      if(_tabController.indexIsChanging){
         // print(_tabController.index);
-        _tab = tabs[_tabController.index]['id'];
+        _currTab =  _topicsOfCategory.keys.toList()[_tabController.index];
+        if(_topicsOfCategory[_currTab]["list"].length==0){
+          _getData();
+        }
+    });
+    _scrollController = ScrollController();
+    _scrollController.addListener((){
+      if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent){
+        // print(_scrollController.position.maxScrollExtent);
+        _topicsOfCategory[_currTab]['currentPage'] += 1;
         _getData();
       }
     });
+    _tabs = <Tab>[];
+    _topicsOfCategory.forEach((k, v) {
+      _tabs.add(new Tab(
+        text: v["label"]
+      ));
+    });
+  }
+
+  Future<void> _handleRefresh(){
+    _topicsOfCategory[_currTab]['currentPage'] = 1;
+    return _getData();
   }
   dispose(){
     super.dispose();
     _tabController.dispose();
+    _scrollController.dispose();
+  }
+  Widget _renderLoading(){
+    return Center(
+      child:CircularProgressIndicator() ,
+    );
+  }
+  Widget _renderRow(BuildContext context, item) {
+    return ListTile( 
+        key: Key(item["id"]),
+        title: Text(item["title"],style: TextStyle(fontSize: 18.0) ),
+        subtitle: Text(item["create_at"]),
+        leading:  CircleAvatar(
+          backgroundImage: NetworkImage(item["author"]["avatar_url"]),
+        ),
+        trailing: Icon(Icons.keyboard_arrow_right),
+        onTap: (){
+          Navigator.pushNamed(context, 'CNodeDetail',arguments:item);
+        },
+    );
+  }
+  Widget _buildLoadMore() {
+    // return Container(child:  Padding(
+    //   padding: const EdgeInsets.all(18.0),
+    //   child: Center(
+    //     child: Text("加载中……"),
+    //   ),
+    // ),color: Colors.white70,);
+    return new Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: new Center(
+        child: new Opacity(
+          opacity: !_isLoading ? 1.0 : 0.0,
+          child: new CircularProgressIndicator(),
+        ),
+      ),
+    );
   }
   @override
   Widget build(BuildContext context) {
-    
-    var _list;
-    if(_tab=="all"){
-      _list = _listAll;
-    }else if(_tab == 'good'){
-      _list = _listGood;
-    }else if(_tab == 'share'){
-      _list = _listShare;
-    }else if(_tab == 'job'){
-      _list = _listJob;
-    }
-    _list.forEach((item){
-        listData[_tab].add(ListTile( 
-            key: Key(item["id"]),
-            title: Text(item["title"],style: TextStyle(fontSize: 18.0) ),
-            subtitle: Text(item["create_at"]),
-            leading:  CircleAvatar(
-              backgroundImage: NetworkImage(item["author"]["avatar_url"]),
-            ),
-            trailing: Icon(Icons.keyboard_arrow_right),
-            onTap: (){
-              Navigator.pushNamed(context, 'CNodeDetail',arguments:item);
+    List<Widget> _tabViews = [];
+    _topicsOfCategory.forEach((key,topic){
+      _tabViews.add(!topic["isFetched"]?_renderLoading():
+        RefreshIndicator(
+          child:ListView.separated(
+            itemCount:topic['list'].length+1,
+            separatorBuilder: (BuildContext context, int index) => Divider(color:Colors.grey[600]),
+            itemBuilder: (BuildContext context, int index) {
+              if(index==topic['list'].length){
+                return _buildLoadMore();
+              }else{
+                return _renderRow(context,topic['list'][index]);
+              }
             },
-        ));
-      });
-    // listData.forEach((key,list){
-    //   var _list;
-    //   if(key == 'all'){
-    //     _list = _list_all;
-    //   }else if(key == 'good'){
-    //     _list = _list_good;
-    //   }else if(key == 'share'){
-    //     _list = _list_share;
-    //   }else if(key == 'job'){
-    //     _list = _list_job;
-    //   }
-    //   _list.forEach((item){
-    //     list.add(ListTile( 
-    //         key: Key(item["id"]),
-    //         title: Text(item["title"],style: TextStyle(fontSize: 18.0) ),
-    //         subtitle: Text(item["create_at"]),
-    //         leading:  CircleAvatar(
-    //           backgroundImage: NetworkImage(item["author"]["avatar_url"]),
-    //         ),
-    //         trailing: Icon(Icons.keyboard_arrow_right),
-    //         onTap: (){
-    //           Navigator.pushNamed(context, 'CNodeDetail',arguments:item);
-    //         },
-    //     ));
-    //   });
-    // });
-    
-    // print(listData);
+            controller: _scrollController,
+          ),
+          onRefresh:_handleRefresh
+        )
+        
+      );
+    });
     return Scaffold(
       appBar: AppBar(
         title: Text('CNode'),
         bottom: TabBar(
           controller: _tabController,
-          isScrollable: true,
-          tabs: tabs.map((tab) =>Tab(text: tab['title'])).toList(),
+          tabs: _tabs
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children:tabs.map((tab) {
-          return ListView(
-              key:Key(tab["id"]),
-              children:ListTile.divideTiles(context:context,tiles:listData[tab["id"]],color: Colors.grey[600]).toList(),
-            );
-        }).toList(),
+        children: _tabViews,
       ),
     );
   }
   Future  _getData() async{
-    var url= "https://cnodejs.org/api/v1/topics?tab="+_tab;
+    if(_isLoading) return ;
+    _isLoading = true;
+    var url= "https://cnodejs.org/api/v1/topics?tab=${_currTab}&limit=15&page=${_topicsOfCategory[_currTab]['currentPage']}";
     Dio dio = new Dio();
     Response response = await dio.get(url);
     if(response.data['success']){
-      switch(_tab){
-        case  'all':
-          setState(() {
-            _listAll = response.data['data'];
-          });
-          break;
-        case  'good':
-          setState(() {
-            _listGood = response.data['data'];
-          });
-          break;
-        case  'share':
-          setState(() {
-            _listShare = response.data['data'];
-          });
-          break;
-        case  'job':
-          setState(() {
-            _listJob = response.data['data'];
-          });
-          break;
-      }
+      _isLoading = false;
+      setState(() {
+        if(_topicsOfCategory[_currTab]['currentPage']==1){
+          _topicsOfCategory[_currTab]['list'] =  response.data['data'];
+        }else{
+          _topicsOfCategory[_currTab]['list'].addAll(response.data['data']);
+        }
+        _topicsOfCategory[_currTab]['isFetched'] = true;
+      });
       
     }
   }
