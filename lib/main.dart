@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/model/Topic.dart';
 import 'TextPage.dart';
 import 'ButtonPage.dart';
 import 'ContainerPage.dart';
@@ -6,7 +7,8 @@ import 'ImagePage.dart';
 import 'FlexPage.dart';
 import 'AnimatePage.dart';
 import 'HttpPage.dart';
-import 'CNodeDetail.dart';
+import 'cnode/CNodeDetail.dart';
+import 'model/Topic.dart';
 
 
 
@@ -29,7 +31,10 @@ class MyApp extends StatelessWidget {
         "FlexPage":(context)=> FlexPage(),
         "AnimatePage":(context)=> AnimatePage(),
         "HttpPage":(context)=> HttpPage(),
-        "CNodeDetail":(context)=> CNodeDetail(),
+        "CNodeDetail":(context){
+          Topic topic  = ModalRoute.of(context).settings.arguments;
+          return CNodeDetail(id:topic.id,title:topic.title);
+        },
       },
       home: new MyHomePage(),
     );
