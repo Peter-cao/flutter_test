@@ -9,34 +9,40 @@ import 'AnimatePage.dart';
 import 'HttpPage.dart';
 import 'cnode/CNodeDetail.dart';
 import 'model/Topic.dart';
+import 'package:provider/provider.dart';
+import 'model/Auth.dart';
 
-
-
-void main() => runApp(new MyApp());
+void main() {
+  Provider.debugCheckInvalidValueType = null;
+  runApp(MyApp());
+} 
 
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Welcome to Flutter',
-      theme: new ThemeData(
-        primaryColor: Colors.white,
-      ),
-      routes:{
-        "textPage":(context)=> TextPage(),
-        "ButtonPage":(context)=> ButtonPage(),
-        "ContainerPage":(context)=> ContainerPage(),
-        "ImagePage":(context)=> ImagePage(),
-        "FlexPage":(context)=> FlexPage(),
-        "AnimatePage":(context)=> AnimatePage(),
-        "HttpPage":(context)=> HttpPage(),
-        "CNodeDetail":(context){
-          Topic topic  = ModalRoute.of(context).settings.arguments;
-          return CNodeDetail(id:topic.id,title:topic.title);
+    return ChangeNotifierProvider<Auth>.value(
+      value: Auth(),
+      child: MaterialApp(
+        title: 'Welcome to Flutter',
+        theme: new ThemeData(
+          primaryColor: Colors.white,
+        ),
+        routes:{
+          "textPage":(context)=> TextPage(),
+          "ButtonPage":(context)=> ButtonPage(),
+          "ContainerPage":(context)=> ContainerPage(),
+          "ImagePage":(context)=> ImagePage(),
+          "FlexPage":(context)=> FlexPage(),
+          "AnimatePage":(context)=> AnimatePage(),
+          "HttpPage":(context)=> HttpPage(),
+          "CNodeDetail":(context){
+            Topic topic  = ModalRoute.of(context).settings.arguments;
+            return CNodeDetail(id:topic.id,title:topic.title);
+          },
         },
-      },
-      home: new MyHomePage(),
+        home: new MyHomePage(),
+      )
     );
   }
 }

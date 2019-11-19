@@ -5,11 +5,14 @@ import 'package:myapp/model/Reply.dart';
 import '../utils/Utils.dart';
 import 'package:dio/dio.dart';
 import '../model/Topic.dart';
+import 'package:provider/provider.dart';
+import '../model/Auth.dart';
 
 
 class CNodeDetail extends StatefulWidget{
   final String id;
   final String title;
+  bool isLogin = false;
   CNodeDetail({
     Key key,
     @required this.id,  // 接收一个id参数
@@ -28,6 +31,7 @@ class CNodeDetailState extends State<CNodeDetail>{
   final String id;
   final String title;
   bool isLoading = true;
+  bool _isLogin;
   Topic _detail;
   initState(){
     super.initState();
@@ -77,7 +81,9 @@ class CNodeDetailState extends State<CNodeDetail>{
             iconSize :18,
             icon: Icon(Icons.favorite_border),
             // splashColor:Colors.transparent,
-            onPressed: (){},
+            onPressed: (){
+
+            },
           ),
           IconButton(
             iconSize :18,
@@ -191,7 +197,7 @@ class CNodeDetailState extends State<CNodeDetail>{
   }
   @override
   Widget build(BuildContext context) {
-   
+    _isLogin =  Provider.of<Auth>(context).isLogin;
     return Scaffold(
       appBar: AppBar(
         title: Text(title),

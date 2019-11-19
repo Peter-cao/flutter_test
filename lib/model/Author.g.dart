@@ -7,10 +7,13 @@ part of 'Author.dart';
 // **************************************************************************
 
 Author _$AuthorFromJson(Map<String, dynamic> json) {
-  return Author(json['loginname'] as String, json['avatar_url'] as String);
+  return Author(json['loginname'] as String, json['avatar_url'] as String,
+      json['create_at'] as String, json['score'] as int);
 }
 
 Map<String, dynamic> _$AuthorToJson(Author instance) => <String, dynamic>{
       'loginname': instance.loginname,
-      'avatar_url': instance.avatarUrl
+      'avatar_url': instance.avatarUrl,
+      'create_at': instance.createAt,
+      'score': instance.score
     };

@@ -6,7 +6,10 @@ class Author{
   String loginname;
   @JsonKey(name: 'avatar_url')
   String avatarUrl;
-  Author(this.loginname, this.avatarUrl);
+  @JsonKey(name: 'create_at')
+  String createAt;
+  int score;
+  Author(this.loginname, this.avatarUrl,this.createAt,this.score);
 
   factory Author.fromJson(Map<String, dynamic> json) => _$AuthorFromJson(json);
   Map<String, dynamic> toJson() => _$AuthorToJson(this);

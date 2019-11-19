@@ -4,6 +4,11 @@ import 'cnode/TopicList.dart';
 import 'cnode/Collection.dart';
 import 'cnode/Message.dart';
 import 'cnode/My.dart';
+import 'cnode/Login.dart';
+import 'model/Auth.dart';
+import 'package:provider/provider.dart';
+
+
 
 class HttpPage extends StatefulWidget{
   @override
@@ -14,13 +19,8 @@ class HttpPage extends StatefulWidget{
 
 class HttpPageState extends State<HttpPage> with SingleTickerProviderStateMixin{
   int _selectedIndex = 0;
-  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  List<Widget> _widgetOptions = <Widget>[
-    TopicList(),
-    Collection(),
-    Message(),
-    My(),
-  ];
+  bool isLogin = false;
+  
 
   void _onItemTapped(int index) {
     setState(() {
@@ -30,6 +30,13 @@ class HttpPageState extends State<HttpPage> with SingleTickerProviderStateMixin{
 
   @override
   Widget build(BuildContext context) {
+    isLogin =  Provider.of<Auth>(context).isLogin;
+    List<Widget> _widgetOptions = <Widget>[
+      TopicList(),
+      isLogin?Collection():Login(),
+      isLogin?Message():Login(),
+      isLogin?My():Login(),
+    ];
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

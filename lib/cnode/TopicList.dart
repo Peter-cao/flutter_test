@@ -42,6 +42,12 @@ class TopicListState extends State<TopicList> with SingleTickerProviderStateMixi
         "label": "招聘",
         "currentPage": 1,
         "list": []
+      },
+      "dev": {
+        "isFetched": false,
+        "label": "测试",
+        "currentPage": 1,
+        "list": []
       }
   };
   initState(){
@@ -85,16 +91,37 @@ class TopicListState extends State<TopicList> with SingleTickerProviderStateMixi
       child:CircularProgressIndicator() ,
     );
   }
+  Widget _randerSubtitle(context,Topic item){
+    List<Widget> list  = [];
+    if(item.good||item.top){
+      list.add(Container(
+        margin: EdgeInsets.only(right: 10),
+        padding: EdgeInsets.symmetric(horizontal: 5.0,vertical: 0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).accentColor,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(item.good?"精华":"置顶",style: TextStyle(
+          fontSize: 14,
+          color: Colors.white
+        ),),
+      ));
+    }
+    list.add(Text(item.author.loginname+"   "+Utils.format(item.lastReplyAt)));
+    return Row(
+      children:list
+    );
+  }
   Widget _renderRow(BuildContext context, item) {
     item = Topic.fromJson(item);
     return ListTile( 
         key: Key(item.id),
         title: Text(item.title,style: TextStyle(fontSize: 18.0) ),
-        subtitle: Text(item.author.loginname+"   "+Utils.format(item.lastReplyAt)),
+        subtitle:_randerSubtitle(context,item),
         leading:  CircleAvatar(
           backgroundImage: NetworkImage(item.author.avatarUrl),
         ),
-        trailing: Icon(Icons.keyboard_arrow_right),
+        trailing: Text("${item.replyCount}/${item.visitCount}"),
         onTap: (){
           Navigator.pushNamed(context, 'CNodeDetail',arguments:item);
         },
@@ -148,6 +175,7 @@ class TopicListState extends State<TopicList> with SingleTickerProviderStateMixi
         title: Align(
           alignment: Alignment.bottomCenter,
           child: TabBar(
+            // isScrollable: true,
             controller: _tabController,
             tabs: _tabs
           )
@@ -162,7 +190,7 @@ class TopicListState extends State<TopicList> with SingleTickerProviderStateMixi
   Future  _getData() async{
     if(_isLoading) return ;
     _isLoading = true;
-    var url= "https://cnodejs.org/api/v1/topics?tab=$_currTab&limit=15&page=$_topicsOfCategory[_currTab]['currentPage']";
+    var url= "https://cnodejs.org/api/v1/topics?tab=$_currTab&limit=15&page=${_topicsOfCategory[_currTab]['currentPage']}";
     Dio dio = new Dio();
     Response response = await dio.get(url);
     if(response.data['success']){

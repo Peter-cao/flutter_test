@@ -17,4 +17,8 @@ class Utils {
       return "刚刚";
     }
   }
+  static String format1(String timestr){
+    var d1 = DateTime.parse(timestr);
+    return "${d1.year}-${d1.month}-${d1.day} ${d1.hour}:${d1.minute}";
+  }
 }
