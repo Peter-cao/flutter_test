@@ -23,7 +23,9 @@ class Topic{
   String createAt;
   Author author;
   List<Reply> replies;
-  Topic(this.id, this.authorId, this.tab, this.content, this.title, this.good, this.top, this.replyCount, this.visitCount, this.createAt, this.author, this.replies);
+  @JsonKey(name: 'is_collect')
+  bool isCollect = false;
+  Topic(this.id, this.authorId, this.tab, this.content, this.title, this.good, this.top, this.replyCount, this.visitCount, this.createAt, this.author, this.replies,this.isCollect);
   factory Topic.fromJson(Map<String, dynamic> json) => _$TopicFromJson(json);
   Map<String, dynamic> toJson() => _$TopicToJson(this);
 }

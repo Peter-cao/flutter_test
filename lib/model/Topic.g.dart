@@ -24,7 +24,8 @@ Topic _$TopicFromJson(Map<String, dynamic> json) {
       (json['replies'] as List)
           ?.map((e) =>
               e == null ? null : Reply.fromJson(e as Map<String, dynamic>))
-          ?.toList())
+          ?.toList(),
+      json['is_collect'] as bool)
     ..lastReplyAt = json['last_reply_at'] as String;
 }
 
@@ -41,5 +42,6 @@ Map<String, dynamic> _$TopicToJson(Topic instance) => <String, dynamic>{
       'visit_count': instance.visitCount,
       'create_at': instance.createAt,
       'author': instance.author,
-      'replies': instance.replies
+      'replies': instance.replies,
+      'is_collect': instance.isCollect
     };

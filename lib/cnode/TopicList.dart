@@ -43,12 +43,12 @@ class TopicListState extends State<TopicList> with SingleTickerProviderStateMixi
         "currentPage": 1,
         "list": []
       },
-      "dev": {
-        "isFetched": false,
-        "label": "测试",
-        "currentPage": 1,
-        "list": []
-      }
+      // "dev": {
+      //   "isFetched": false,
+      //   "label": "测试",
+      //   "currentPage": 1,
+      //   "list": []
+      // }
   };
   initState(){
     super.initState();

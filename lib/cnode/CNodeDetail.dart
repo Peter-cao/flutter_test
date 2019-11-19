@@ -12,7 +12,6 @@ import '../model/Auth.dart';
 class CNodeDetail extends StatefulWidget{
   final String id;
   final String title;
-  bool isLogin = false;
   CNodeDetail({
     Key key,
     @required this.id,  // 接收一个id参数
@@ -32,13 +31,14 @@ class CNodeDetailState extends State<CNodeDetail>{
   final String title;
   bool isLoading = true;
   bool _isLogin;
+  String _accesstoken="";
   Topic _detail;
   initState(){
     super.initState();
-    _loadData();
+    
   }
   Future  _loadData() async{
-    var url= "https://cnodejs.org/api/v1/topic/$id";
+    var url= "https://cnodejs.org/api/v1/topic/$id?accesstoken=$_accesstoken";
     Dio dio = new Dio();
     Response response = await dio.get(url);
     
@@ -46,12 +46,51 @@ class CNodeDetailState extends State<CNodeDetail>{
       if(mounted){
         setState(() {
           _detail = Topic.fromJson(response.data['data']);
+          print(_detail.isCollect);
           isLoading = false;
         });
       }
     }
   }
-  Widget _randerTop(){
+  Future  _collectTopic() async{
+
+    var url= "https://cnodejs.org/api/v1/topic_collect/${_detail.isCollect?"de_collect":"collect"}";
+    Dio dio = new Dio();
+    Response response = await dio.post(url,data: {
+      "accesstoken":_accesstoken,
+      "topic_id": _detail.id 
+    });
+    print(response);
+    if(mounted){
+      setState(() {
+        _detail.isCollect = !_detail.isCollect;
+      });
+    }
+  }
+  Future  _up(id) async{
+    var url= "https://cnodejs.org/api/v1/reply/$id/ups";
+    Dio dio = new Dio();
+    print(url);
+    print(_accesstoken);
+    Response response = await dio.post(url,data: {
+      "accesstoken":_accesstoken,
+    });
+    print(response);
+    if(mounted){
+      // setState(() {
+      //   _detail.isCollect = !_detail.isCollect;
+      // });
+    }
+  }
+  void _showSnackBar(context){
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text('请先登录'),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+  }
+  Widget _randerTop(BuildContext context){
     
     return Padding(
       padding: EdgeInsets.all(10.0),
@@ -79,10 +118,15 @@ class CNodeDetailState extends State<CNodeDetail>{
           ),
           IconButton(
             iconSize :18,
-            icon: Icon(Icons.favorite_border),
+            icon: _detail.isCollect? Icon(Icons.favorite,color: Colors.redAccent,): Icon(Icons.favorite_border),
             // splashColor:Colors.transparent,
             onPressed: (){
-
+              if(_isLogin){
+                _collectTopic();
+              }else{
+                _showSnackBar(context);
+              }
+              
             },
           ),
           IconButton(
@@ -100,7 +144,7 @@ class CNodeDetailState extends State<CNodeDetail>{
       child:CircularProgressIndicator() ,
     );
   }
-  Widget _randerReply(Reply reply,int i){
+  Widget _randerReply(context,Reply reply,int i){
     return Column(
       children: <Widget>[
         Row(
@@ -130,7 +174,11 @@ class CNodeDetailState extends State<CNodeDetail>{
             ),
             GestureDetector(
               onTap: (){
-                print("点赞");
+                if(_isLogin){
+                  _up(reply.replyId);
+                }else{
+                  _showSnackBar(context);
+                }
               },//点击
               child: Padding(
                 padding: EdgeInsets.all(8.0),
@@ -151,7 +199,7 @@ class CNodeDetailState extends State<CNodeDetail>{
       ],
     );
   }
-  Widget _randerReplies(){
+  Widget _randerReplies(context){
     List<Widget> list  = [];
     list.add(
       Padding(
@@ -161,23 +209,23 @@ class CNodeDetailState extends State<CNodeDetail>{
     );
     for(var i =0;i < _detail.replies.length;i++){
       list.add(
-        _randerReply(_detail.replies[i],i+1)
+        _randerReply(context,_detail.replies[i],i+1)
       );
     }
     return Padding(
       padding: EdgeInsets.all(10.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: list,
       ),
     );
   }
-  Widget _randerDetail(){
+  Widget _randerDetail(BuildContext context){
     return Scrollbar(
         child:SingleChildScrollView(
           child:Column(
             children: <Widget>[
-              _randerTop(),
+              _randerTop(context),
               Html(
                 padding: EdgeInsets.all(8.0),
                 data: _detail.content,
@@ -188,7 +236,7 @@ class CNodeDetailState extends State<CNodeDetail>{
                   color: Color(0xFFDDDDDD)
                 ),
               ),
-              _randerReplies()
+              _randerReplies(context)
               // _detail.replies??_randerReplies()
             ],
           )
@@ -198,11 +246,21 @@ class CNodeDetailState extends State<CNodeDetail>{
   @override
   Widget build(BuildContext context) {
     _isLogin =  Provider.of<Auth>(context).isLogin;
+    if(_isLogin){
+      _accesstoken =  Provider.of<Auth>(context).accesstoken;
+    }
+    if(_detail == null){
+      _loadData();
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
       ),
-      body: isLoading?_randerLoading():_randerDetail(),
+      body: Builder(
+        builder: (BuildContext context) {
+          return isLoading?_randerLoading():_randerDetail(context);
+        }
+      ),
     );
   }
 
