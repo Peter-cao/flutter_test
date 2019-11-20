@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../utils/Utils.dart';
 import '../model/Topic.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class TopicList extends StatefulWidget{
   @override
@@ -119,7 +120,14 @@ class TopicListState extends State<TopicList> with SingleTickerProviderStateMixi
         title: Text(item.title,style: TextStyle(fontSize: 18.0) ),
         subtitle:_randerSubtitle(context,item),
         leading:  CircleAvatar(
-          backgroundImage: NetworkImage(item.author.avatarUrl),
+          // backgroundImage: NetworkImage(item.author.avatarUrl),
+          // backgroundImage:CachedNetworkImageProvider(item.author.avatarUrl,errorListener: (){
+          //   return Icon(Icons.error);
+          // })
+          child: CachedNetworkImage(
+              imageUrl: item.author.avatarUrl,
+              errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
         ),
         trailing: Text("${item.replyCount}/${item.visitCount}"),
         onTap: (){
