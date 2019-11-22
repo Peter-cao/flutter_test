@@ -8,6 +8,7 @@ import 'FlexPage.dart';
 import 'AnimatePage.dart';
 import 'HttpPage.dart';
 import 'cnode/CNodeDetail.dart';
+import 'cnode/qrcode.dart';
 import 'model/Topic.dart';
 import 'package:provider/provider.dart';
 import 'model/Auth.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
           "FlexPage":(context)=> FlexPage(),
           "AnimatePage":(context)=> AnimatePage(),
           "HttpPage":(context)=> HttpPage(),
+          "QrCode":(context)=> QrCode(),
           "CNodeDetail":(context){
             Topic topic  = ModalRoute.of(context).settings.arguments;
             return CNodeDetail(id:topic.id,title:topic.title);

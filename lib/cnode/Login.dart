@@ -173,7 +173,7 @@ class LoginState extends State<Login>{
                           icon: Icon(Icons.crop_free),
                           label: Text("扫码登录"),
                           onPressed: (){
-
+                            Navigator.pushNamed(context, 'QrCode');
                           },
                         ),
                       ],
