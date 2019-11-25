@@ -6,6 +6,9 @@ import 'ContainerPage.dart';
 import 'ImagePage.dart';
 import 'FlexPage.dart';
 import 'AnimatePage.dart';
+import 'AnimatePage1.dart';
+import 'AnimatePage2.dart';
+import 'AnimatePage3.dart';
 import 'HttpPage.dart';
 import 'cnode/CNodeDetail.dart';
 import 'cnode/qrcode.dart';
@@ -36,6 +39,9 @@ class MyApp extends StatelessWidget {
           "ImagePage":(context)=> ImagePage(),
           "FlexPage":(context)=> FlexPage(),
           "AnimatePage":(context)=> AnimatePage(),
+          "AnimatePage1":(context)=> AnimatePage1(),
+          "AnimatePage2":(context)=> AnimatePage2(),
+          "AnimatePage3":(context)=> AnimatePage3(),
           "HttpPage":(context)=> HttpPage(),
           "QrCode":(context)=> QrCode(),
           "CNodeDetail":(context){
@@ -104,6 +110,24 @@ class MyHomePageState extends State<MyHomePage>{
               child: Text('动画'),
               onPressed: (){
                 Navigator.pushNamed(context, 'AnimatePage');
+              },
+            ),
+            RaisedButton(
+              child: Text('动画1'),
+              onPressed: (){
+                Navigator.pushNamed(context, 'AnimatePage1');
+              },
+            ),
+            RaisedButton(
+              child: Text('Hero动画'),
+              onPressed: (){
+                Navigator.pushNamed(context, 'AnimatePage2');
+              },
+            ),
+            RaisedButton(
+              child: Text('交织动画'),
+              onPressed: (){
+                Navigator.pushNamed(context, 'AnimatePage3');
               },
             ),
             RaisedButton(
